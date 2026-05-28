@@ -11,6 +11,7 @@ A production-oriented Emergency Room management backend built with FastAPI, Post
 - Audit-friendly timestamps
 - Alembic migrations
 - Security hardening headers, CORS control, rate limiting
+- Dockerized deployment with PostgreSQL
 
 ## Tech Stack
 - FastAPI
@@ -19,8 +20,9 @@ A production-oriented Emergency Room management backend built with FastAPI, Post
 - Alembic
 - Pydantic v2
 - SlowAPI rate limiting
+- Docker & Docker Compose
 
-## Quick Start
+## Local Quick Start
 
 ```bash
 python -m venv .venv
@@ -33,11 +35,23 @@ uvicorn app.main:app --reload
 
 Open: http://127.0.0.1:8000/docs
 
+## Docker Quick Start (Real DB)
+
+```bash
+docker compose up --build
+```
+
+After startup:
+- API: http://127.0.0.1:8000
+- Swagger: http://127.0.0.1:8000/docs
+- Health: http://127.0.0.1:8000/health
+
 ## Security Notes
 - Set a strong `SECRET_KEY` in `.env`
-- Use HTTPS in production
+- Use HTTPS in production via reverse proxy
 - Restrict `CORS_ORIGINS`
 - Use strong DB credentials and private networking
+- Rotate secrets and use a secret manager in cloud environments
 
 ## Default Roles
 - `admin`
