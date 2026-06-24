@@ -1,0 +1,1 @@
+Temporary isolated build workspace for the Arabic barcode scanner Android package.
