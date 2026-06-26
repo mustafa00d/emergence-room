@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - english-ai-apk-final
+  pull_request:
+    branches:
+      - english-ai-app
   workflow_dispatch:
 
 permissions:
