@@ -1,0 +1,66 @@
+name: Build Installable Demo APK
+
+on:
+  pull_request:
+    branches:
+      - english-ai-app
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Create Android project
+        run: |
+          flutter create --platforms=android --org com.mustafa.englishai --project-name english_ai_demo build_app
+          cp demo/main.dart build_app/lib/main.dart
+          cp demo/pubspec.yaml build_app/pubspec.yaml
+          python3 - <<'PY'
+          from pathlib import Path
+          manifest = Path('build_app/android/app/src/main/AndroidManifest.xml')
+          text = manifest.read_text()
+          text = text.replace('android:label="english_ai_demo"', 'android:label="English AI"')
+          manifest.write_text(text)
+          PY
+
+      - name: Get packages
+        working-directory: build_app
+        run: flutter pub get
+
+      - name: Analyze
+        working-directory: build_app
+        run: flutter analyze
+
+      - name: Build release APK
+        working-directory: build_app
+        run: flutter build apk --release
+
+      - name: Prepare artifact
+        run: cp build_app/build/app/outputs/flutter-apk/app-release.apk English-AI-Demo-v1.0.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: English-AI-Demo-APK
+          path: English-AI-Demo-v1.0.apk
+          if-no-files-found: error
+          retention-days: 30
