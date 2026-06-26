@@ -1,7 +1,7 @@
 name: english_ai_demo
 description: Offline demonstration build for Android testing.
 publish_to: none
-version: 1.0.0+9
+version: 1.0.0+10
 
 environment:
   sdk: '>=3.6.0 <4.0.0'
