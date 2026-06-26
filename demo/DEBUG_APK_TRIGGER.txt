@@ -1,0 +1,1 @@
+Installable debug APK build request for English AI demo.
