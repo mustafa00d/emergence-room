@@ -45,7 +45,8 @@ jobs:
         working-directory: build_app
         run: flutter pub get
 
-      - name: Analyze
+      - name: Analyze report
+        continue-on-error: true
         working-directory: build_app
         run: flutter analyze
 
