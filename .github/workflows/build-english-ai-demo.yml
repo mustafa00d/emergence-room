@@ -35,10 +35,134 @@ jobs:
           cp demo/pubspec.yaml build_app/pubspec.yaml
           python3 - <<'PY'
           from pathlib import Path
+
           manifest = Path('build_app/android/app/src/main/AndroidManifest.xml')
-          text = manifest.read_text()
-          text = text.replace('android:label="english_ai_demo"', 'android:label="English AI"')
-          manifest.write_text(text)
+          manifest_text = manifest.read_text()
+          manifest_text = manifest_text.replace('android:label="english_ai_demo"', 'android:label="English AI"')
+          manifest.write_text(manifest_text)
+
+          dart_file = Path('build_app/lib/main.dart')
+          source = dart_file.read_text()
+          start = source.index('class Review extends StatefulWidget')
+          end = source.index('class Studio extends StatelessWidget')
+          replacement = """class Review extends StatefulWidget {
+            const Review({super.key});
+
+            @override
+            State<Review> createState() => _ReviewState();
+          }
+
+          class _ReviewState extends State<Review> {
+            bool show = false;
+            int number = 1;
+
+            void rateCard() {
+              setState(() {
+                number = number == 12 ? 1 : number + 1;
+                show = false;
+              });
+            }
+
+            @override
+            Widget build(BuildContext context) {
+              const ratings = ['نسيت', 'صعب', 'جيد', 'سهل'];
+              return Scaffold(
+                appBar: AppBar(
+                  title: const Text(
+                    'المراجعة الذكية',
+                    style: TextStyle(fontWeight: FontWeight.w900),
+                  ),
+                ),
+                body: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      Text('$number / 12'),
+                      const SizedBox(height: 8),
+                      LinearProgressIndicator(value: number / 12, minHeight: 8),
+                      const SizedBox(height: 22),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() => show = true),
+                          child: Card(
+                            child: SizedBox.expand(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text(
+                                    'achievement',
+                                    style: TextStyle(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                                  ),
+                                  const Text(
+                                    '/əˈtʃiːvmənt/',
+                                    style: TextStyle(color: Colors.black54),
+                                  ),
+                                  if (show) ...[
+                                    const Divider(height: 42),
+                                    const Text(
+                                      'إنجاز',
+                                      style: TextStyle(
+                                        fontSize: 25,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    const Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 18),
+                                      child: Text(
+                                        'Finishing the course was a major achievement.',
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ] else ...[
+                                    const SizedBox(height: 28),
+                                    const Text(
+                                      'اضغط لإظهار المعنى',
+                                      style: TextStyle(color: Colors.black45),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      if (show)
+                        Row(
+                          children: [
+                            for (final label in ratings)
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 3),
+                                  child: FilledButton(
+                                    onPressed: rateCard,
+                                    child: Text(
+                                      label,
+                                      style: const TextStyle(fontSize: 11),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        )
+                      else
+                        FilledButton(
+                          onPressed: () => setState(() => show = true),
+                          child: const Text('إظهار الإجابة'),
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            }
+          }
+
+          """
+          dart_file.write_text(source[:start] + replacement + source[end:])
           PY
 
       - name: Get packages
